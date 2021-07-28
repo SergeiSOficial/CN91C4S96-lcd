@@ -81,19 +81,18 @@ inline void LCD_TOGGLE(bool EN, uint8_t POS1, uint8_t SEG1, uint8_t POS2, uint8_
 /**
  * @brief DISPLAY HARDWARE DEFINES BLOCK
  */
-#define BIAS 0x52    //0b1000 0101 0010  1/3duty 4com
-#define SYSDIS 0x00  //0b1000 0000 0000  Turn off both system oscillator and LCD bias generator
-#define SYSEN 0x02   //0b1000 0000 0010  Turn on system oscillator
-#define LCDOFF 0x04  //0b1000 0000 0100  Turn off LCD bias generator
-#define LCDON 0x06   //0b1000 0000 0110  Turn on LCD bias generator
-#define XTAL 0x28    //0b1000 0010 1000  System clock source, crystal oscillator
-#define RC256 0x30   //0b1000 0011 0000  System clock source, on-chip RC oscillator
-#define TONEON 0x12  //0b1000 0001 0010  Turn on tone outputs
-#define TONEOFF 0x10 //0b1000 0001 0000  Turn off tone outputs
-#define WDTDIS1 0x0A //0b1000 0000 1010  Disable WDT time-out flag output
-#define CLRTMR 0x1A //0b1000 0000 1010  Disable WDT time-out flag output
+#define ULP 0x50 //0b 0101 0000  ULP Set ‘1’ to enable the Ultra-Low-Power mode, which can decrease total power consumption further more along with ‘SR’ and ‘FR’ Power
+#define SYSEN 0x48  //0b 0100 1000  EN 0: disable all blocks on-chip, all com/seg pin will be pulled to GND. 1: enable
+#define LCDOFF 0x79  //0b 0111 1001  Turn off all LCD segments
+#define LCDON 0x7A   //0b 0111 1010  Turn on all LCD segments
 
-#define MODE_CMD 0x01
+#define PIXONOFFDATA 0x78 //0b 0111 1000  All pixels are ON/OFF depending on the data in
+#define NOBLINK 0x70      //0b 0111 0000  No blink
+#define EV0 0x60          //0b 0110 0000 EV=0 Adjust resistor divider for LCD contrast setting.
+#define NORMALMODE 0x20   //0b 0010 0000 80Hz Normal Mode, Line inverse, *0.5, Power Save Mode 1
+
+#define SLAVE_OWN_ADDRESS 0x7C
+#define MODE_CMD  0x01
 #define MODE_DATA 0x00
 
 #define ADR0_SHIFT 0
@@ -421,7 +420,7 @@ void dotsBufferClear();
 void lettersBufferClear();
 //Clear all segments
 void AllClear();
-// coverts buffer symbols to format, which can be displayed by lcd
+// coverts buffer symbols to format, which can be displayed by LCD
 void bufferToAscii(const char *in, uint8_t *out);
 
 void CN91C4S96Init(CN91C4S96_HAL_st *hal_ptr)
@@ -430,36 +429,13 @@ void CN91C4S96Init(CN91C4S96_HAL_st *hal_ptr)
     assert_param(hal_ptr->WriteI2C);
     CN91C4S96_hal = hal_ptr;
 
-    wrCmd(BIAS);
-   // wrCmd(XTAL);
-    wrCmd(SYSDIS);
-    wrCmd(WDTDIS1);
-    wrCmd(SYSEN);
-    wrCmd(LCDON);
+    CN91C4S96_hal->InitI2C(); //
 
-    wrCmd(BIAS);
-
-//    wrCmd(XTAL);
-//    wrCmd(CLRTMR);
-
-//    wrCmd(TONEOFF);
-//    wrCmd(LCDOFF);
-
-    CN91C4S96_hal->InitI2C();//
-//    uint8_t buffer[32] = {0xE0};//0b1110 0000 EV=0
-//    CN91C4S96_hal->WriteI2C(buffer, 1);
-
-    buffer[0] = 0xD8;//0b1101 1000 ULP EN
-    CN91C4S96_hal->WriteI2C(buffer, 1);
-    buffer[0] = 0xF8;//0b1111 1000   All pixels are ON/OFF depending on the data in
-    CN91C4S96_hal->WriteI2C(buffer, 1);
-    buffer[0] = 0xF0;//0b1111 0000   No blink.
-    CN91C4S96_hal->WriteI2C(buffer, 1);
-
-    buffer[0] = 0xE0;//0b1110 0000 EV=0
-    CN91C4S96_hal->WriteI2C(buffer, 1);
-    buffer[0] = 0xA0;//0b1010 0000 80Hz Normal Mode, Line inverse, *0.5, Power Save Mode 1
-    CN91C4S96_hal->WriteI2C(buffer, 1);
+    wrCmd(ULP | SYSEN);
+    wrCmd(PIXONOFFDATA);
+    wrCmd(NOBLINK);
+    wrCmd(EV0);
+    wrCmd(NORMALMODE);
 }
 
 void CN91C4S96displayOn()
@@ -624,9 +600,9 @@ void CN91C4S96printNum(int32_t num)
 
     char str[DISPLAY_SIZE + 1] = {0};
 #if __STDC_WANT_LIB_EXT1__ == 1
-        snprintf_s(str, sizeof(str), "%6li", num);
+    snprintf_s(str, sizeof(str), "%6li", num);
 #else
-        snprintf(str, sizeof(str), "%6li", num);
+    snprintf(str, sizeof(str), "%6li", num);
 #endif
 
     bufferToAscii(str, buffer);
@@ -679,7 +655,8 @@ void CN91C4S96printFixed(int32_t multiplied_float, uint32_t multiplier)
         precision = 2;
     else if (multiplier == 10)
         precision = 1;
-    else precision = 0;
+    else
+        precision = 0;
 
     if (multiplied_float > MAX_NUM)
         multiplied_float = MAX_NUM;

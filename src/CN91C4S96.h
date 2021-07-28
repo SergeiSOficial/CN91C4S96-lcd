@@ -38,7 +38,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 typedef struct
 {
     void (*InitI2C)(void);
-    int8_t (*WriteI2C)(const uint8_t*, uint16_t);
+    int8_t (*WriteI2C)(const uint8_t *, uint16_t);
 } CN91C4S96_HAL_st;
 
 /**
@@ -97,7 +97,7 @@ void CN91C4S96printFloat(float num, uint8_t precision);
 /**
      * @brief Prints number with dot. Use it instead float. Float type usage may slow down many systems
      */
-void CN91C4S96printFixedPoint(int32_t multiplied_float, uint32_t multiplier);
+void CN91C4S96printFixed(int32_t multiplied_float, uint32_t multiplier);
 
 /**
      * @brief Clears the display
