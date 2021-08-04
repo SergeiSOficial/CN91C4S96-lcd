@@ -38,7 +38,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 typedef struct
 {
     void (*InitI2C)(void);
-    int8_t (*WriteI2C)(const uint8_t *, uint16_t);
+    int8_t (*WriteI2C)(uint8_t, const uint8_t *, uint16_t);
 } CN91C4S96_HAL_st;
 
 /**
@@ -163,9 +163,8 @@ void CN91C4S96DispVer(bool enable, bool mode);
     * \brief display serial number or B
     *
     * \param enable true for enable symbols, false for disable all symbols
-    * \param mode true if russian or false if english symbols
     */
-void CN91C4S96DispSN(bool enable, bool mode);
+void CN91C4S96DispSN(bool enable);
 
 /*!
     * \brief display warning sybmol
@@ -320,6 +319,14 @@ void CN91C4S96DispMMBTU(bool enable);
      * \param mode if true then display U.S. else display only GALLONS
      */
 void CN91C4S96DispGal(bool enable, bool mode);
+
+/*!
+     * \brief display POV (POB) POVERKA
+     *
+     * \param enable true for enable symbols, false for disable all symbols
+     * \param mode if true then display POB
+     */
+void CN91C4S96DispPOV(bool enable);
 
 #define DISPLAY_SIZE 9                             // 16 * 8  = 128 symbols on display plus 2 byte for address
 #define SYS_SIZE 2                                 // 2 byte for address and commands

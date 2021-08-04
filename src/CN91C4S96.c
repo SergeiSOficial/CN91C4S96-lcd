@@ -98,24 +98,24 @@ inline void LCD_TOGGLE(bool EN, uint8_t POS1, uint8_t SEG1, uint8_t POS2, uint8_
 #define ADR0_SHIFT 0
 #define ADR1_SHIFT 7
 
-#define BAT1_SEG (1 << 5)
-#define BAT2_SEG (1 << 1)
-#define BAT3_SEG (1 << 2)
-#define BAT4_SEG (1 << 6)
+#define BAT1_SEG (1 << 3)
+#define BAT2_SEG (1 << 7)
+#define BAT3_SEG (1 << 6)
+#define BAT4_SEG (1 << 2)
 
-#define BAT14_POS 13
-#define BAT23_POS 14
+#define BAT14_POS 3
+#define BAT23_POS 2
 
 #define P1_SEG (1 << 0)
-#define P1_POS 7
+#define P1_POS 10
 #define P2_SEG (1 << 0)
-#define P2_POS 8
+#define P2_POS 9
 #define P3_SEG (1 << 0)
-#define P3_POS 9
+#define P3_POS 8
 #define P4_SEG (1 << 0)
-#define P4_POS 10
+#define P4_POS 7
 #define P5_SEG (1 << 0)
-#define P5_POS 11
+#define P5_POS 6
 
 #define NUM1FGE_SEG (7 << 5) //0b11100000
 #define NUM1FGE_POS 2
@@ -124,141 +124,151 @@ inline void LCD_TOGGLE(bool EN, uint8_t POS1, uint8_t SEG1, uint8_t POS2, uint8_
 #define NUM1ABCD_POS 3
 
 #define MINUS_SEG (1 << 0)
-#define MINUS_POS 4
+#define MINUS_POS 13
 
 #define MIN_RU_SEG (1 << 0)
-#define MIN_RU_POS 5
+#define MIN_RU_POS 12
 #define MAX_RU_SEG (1 << 4)
-#define MAX_RU_POS 2
+#define MAX_RU_POS 14
 
 #define MIN_EN_SEG (1 << 0)
-#define MIN_EN_POS 6
+#define MIN_EN_POS 11
 #define MAX_EN_SEG (1 << 0)
-#define MAX_EN_POS 3
+#define MAX_EN_POS 14
 
 #define BURST_RU_SEG (1 << 4)
-#define BURST_RU_POS 1
-#define BURST_EN_SEG (1 << 7)
-#define BURST_EN_POS 1
+#define BURST_RU_POS 15
+#define BURST_EN_SEG (1 << 1)
+#define BURST_EN_POS 15
 
-#define LEAK_RU_SEG (1 << 6)
-#define LEAK_RU_POS 1
-#define LEAK_EN_SEG (1 << 3)
-#define LEAK_EN_POS 1
+#define LEAK_RU_SEG (1 << 2)
+#define LEAK_RU_POS 15
+#define LEAK_EN_SEG (1 << 5)
+#define LEAK_EN_POS 15
 
-#define REV_RU_SEG (1 << 2)
-#define REV_RU_POS 1
-#define REV_EN_SEG (1 << 1)
-#define REV_EN_POS 1
+#define REV_RU_SEG (1 << 6)
+#define REV_RU_POS 15
+#define REV_EN_SEG (1 << 7)
+#define REV_EN_POS 15
 
 #define FROST_SEG (1 << 0)
-#define FROST_POS 2
+#define FROST_POS 15
 
-#define Q_SEG (1 << 3)
-#define Q_POS 2
+#define Q_SEG (1 << 5)
+#define Q_POS 14
 
-#define VER_RU_SEG (1 << 1)
-#define VER_RU_POS 2
-#define VER_EN_SEG (1 << 2)
-#define VER_EN_POS 2
+#define VER_RU_SEG (1 << 7)
+#define VER_RU_POS 14
+#define VER_EN_SEG (1 << 6)
+#define VER_EN_POS 14
 
-#define SN_RU_SEG (1 << 5)
-#define SN_RU_POS 1
-#define SN_EN_SEG (1 << 7)
-#define SN_EN_POS 16
+#define POV_SEG (1 << 3)
+#define POV_POS 15
+
+#define SN_SEG (1 << 1)
+#define SN_POS 0
 
 #define WARN_SEG (1 << 0)
-#define WARN_POS 8
+#define WARN_POS 0
 
 #define MAGNET_SEG (1 << 4)
-#define MAGNET_POS 16
+#define MAGNET_POS 0
 
 #define LEFT_SEG (1 << 0)
-#define LEFT_POS 16
+#define LEFT_POS 1
 
 #define RIGHT_SEG (1 << 0)
-#define RIGHT_POS 15
+#define RIGHT_POS 2
 
 #define NOWATER_SEG (1 << 4)
-#define NOWATER_POS 15
+#define NOWATER_POS 1
 
-#define CRC_SEG (1 << 6)
-#define CRC_POS 16
+#define CRC_SEG (1 << 2)
+#define CRC_POS 0
 
-#define DELTA_SEG (1 << 5)
-#define DELTA_POS 16
+#define DELTA_SEG (1 << 3)
+#define DELTA_POS 0
 
-#define T_SEG (1 << 2)
-#define T_POS 16
+#define T_SEG (1 << 6)
+#define T_POS 0
 
-#define T1_SEG (1 << 3)
-#define T1_POS 16
+#define T1_SEG (1 << 5)
+#define T1_POS 0
 
-#define T2_SEG (1 << 7)
-#define T2_POS 15
+#define T2_SEG (1 << 1)
+#define T2_POS 1
 
 #define NBFI_SEG (1 << 4)
-#define NBFI_POS 14
+#define NBFI_POS 2
 
 #define NBIOT_SEG (1 << 0)
-#define NBIOT_POS 14
+#define NBIOT_POS 3
 
-#define SIG1_SEG (1 << 7)
-#define SIG1_POS 14
-#define SIG2_SEG (1 << 3)
-#define SIG2_POS 14
-#define SIG3_SEG (1 << 7)
-#define SIG3_POS 13
+#define SIG1_SEG (1 << 1)
+#define SIG1_POS 2
+#define SIG2_SEG (1 << 5)
+#define SIG2_POS 2
+#define SIG3_SEG (1 << 1)
+#define SIG3_POS 3
 
-#define DEGREE_SEG (1 << 6)
-#define DEGREE_POS 15
+#define SP_RU_SEG (1 << 0)
+#define SP_RU_POS 4
+#define SP_EN_SEG (1 << 4)
+#define SP_EN_POS 3
+#define RP_RU_SEG (1 << 1)
+#define RP_RU_POS 4
+#define RP_EN_SEG (1 << 5)
+#define RP_EN_POS 3
 
-#define GCAL_SEG (1 << 2)
-#define GCAL_POS 13
-#define GCAL_H_SEG (1 << 6)
-#define GCAL_H_POS 12
+#define DEGREE_SEG (1 << 2)
+#define DEGREE_POS 1
 
-#define GJ_SEG (1 << 5)
-#define GJ_POS 15
-#define GJ_H_SEG (1 << 1)
-#define GJ_H_POS 13
+#define GCAL_SEG (1 << 6)
+#define GCAL_POS 3
+#define GCAL_H_SEG (1 << 2)
+#define GCAL_H_POS 4
 
-#define KW_SEG (1 << 5)
-#define KW_POS 11
-#define MW_SEG (1 << 6)
-#define MW_POS 11
-#define W_SEG (1 << 5)
-#define W_POS 12
-#define WH_SEG (1 << 1)
-#define WH_POS 12
+#define GJ_SEG (1 << 3)
+#define GJ_POS 1
+#define GJ_H_SEG (1 << 7)
+#define GJ_H_POS 3
 
-#define GAL_SEG (1 << 2)
-#define GAL_POS 13
+#define KW_SEG (1 << 3)
+#define KW_POS 5
+#define MW_SEG (1 << 2)
+#define MW_POS 5
+#define W_SEG (1 << 3)
+#define W_POS 4
+#define WH_SEG (1 << 7)
+#define WH_POS 4
+
+#define GAL_SEG (1 << 1)
+#define GAL_POS 5
 #define GAL_PM_SEG (1 << 6)
-#define GAL_PM_POS 12
+#define GAL_PM_POS 4
 
 #define M3_SEG (1 << 0)
-#define M3_POS 12
-#define M3_H_SEG (1 << 3)
-#define M3_H_POS 12
-#define M3_H_EN_SEG (1 << 4)
-#define M3_H_EN_POS 12
+#define M3_POS 5
+#define M3_H_SEG (1 << 5)
+#define M3_H_POS 4
+#define M3_H_EN_SEG (1 << 5)
+#define M3_H_EN_POS 4
 
-#define FT3_SEG (1 << 2)
-#define FT3_POS 15
-#define FT3_PM_SEG (1 << 1)
-#define FT3_PM_POS 15
+#define FT3_SEG (1 << 6)
+#define FT3_POS 1
+#define FT3_PM_SEG (1 << 7)
+#define FT3_PM_POS 1
 
-#define MMBTU_SEG (1 << 3)
-#define MMBTU_POS 15
+#define MMBTU_SEG (1 << 5)
+#define MMBTU_POS 1
 
-#define GALLONS_SEG (1 << 5)
-#define GALLONS_POS 14
-#define US_SEG (1 << 6)
-#define US_POS 14
+#define GALLONS_SEG (1 << 3)
+#define GALLONS_POS 2
+#define US_SEG (1 << 2)
+#define US_POS 2
 
-#define ALL_CLEAR_SEG (0xfe << 0) //0b11111110
-#define ALL_CLEAR_POS 1
+#define ALL_CLEAR_SEG 0xff
+#define ALL_CLEAR_POS 0
 
 #define DOT_SEG 0x80
 
@@ -466,13 +476,13 @@ void *reverseBytes(void *inp, size_t len)
 void wrBytes(uint8_t *ptr, uint8_t size)
 {
     // TODO: check wrong size
-    CN91C4S96_hal->WriteI2C(ptr, size);
+    CN91C4S96_hal->WriteI2C(SLAVE_OWN_ADDRESS, ptr, size);
 }
 
 void wrBuffer()
 {
-    buffer[0] = MODE_DATA | (0 << ADR0_SHIFT);
-    buffer[1] |= (0 << ADR1_SHIFT);
+//    buffer[0] = MODE_DATA | (0 << ADR0_SHIFT);
+//    buffer[1] |= (0 << ADR1_SHIFT);
 
     wrBytes(buffer, sizeof(buffer));
 }
@@ -764,16 +774,15 @@ void CN91C4S96DispVer(bool enable, bool mode)
     }
 }
 
-void CN91C4S96DispSN(bool enable, bool mode)
+void CN91C4S96DispSN(bool enable)
 {
     if (enable)
     {
-        LCD_SWITCH(mode, SN_RU_POS, SN_RU_SEG);
+        SET_BIT(buffer[SN_POS], SN_SEG);
     }
     else
     {
-        CLEAR_BIT(buffer[SN_RU_POS], SN_RU_SEG);
-        CLEAR_BIT(buffer[SN_EN_POS], SN_EN_SEG);
+        CLEAR_BIT(buffer[SN_POS], SN_SEG);
     }
 }
 
@@ -970,5 +979,19 @@ void CN91C4S96DispGal(bool enable, bool mode)
     {
         CLEAR_BIT(buffer[GALLONS_POS], GALLONS_SEG);
         CLEAR_BIT(buffer[US_POS], US_SEG);
+    }
+}
+
+void CN91C4S96DispPOV(bool enable)
+{
+    if (enable)
+    {
+        SET_BIT(buffer[POV_POS], POV_SEG);
+        SET_BIT(buffer[VER_RU_POS], VER_RU_SEG);
+    }
+    else
+    {
+        CLEAR_BIT(buffer[POV_POS], POV_SEG);
+        CLEAR_BIT(buffer[VER_RU_POS], VER_RU_SEG);
     }
 }
