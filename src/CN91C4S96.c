@@ -61,11 +61,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #define CLEAR_BIT(REG, BIT) ((REG) |= (BIT))
 #endif //CLEAR_BIT
 
-uint8_t buffer[DISPLAY_BUFFER_SIZE] = {0}; // buffer where display data will be stored
+uint8_t bufferSend[DISPLAY_BUFFER_SIZE] = {0}; // buffer where display data will be stored
+uint8_t * buffer = bufferSend + 2; // buffer where display data will be stored
 
 #define LCD_SWITCH(EN, POS, SEG) ((EN) ? (SET_BIT(buffer[POS], SEG)) : (CLEAR_BIT(buffer[POS], SEG)))
-//#define LCD_TOGGLE(EN, POS1, SEG1, POS2, SEG2) ((EN) ? ({SET_BIT(buffer[POS1], SEG1); CLEAR_BIT(buffer[POS2], SEG2); }) : ({SET_BIT(buffer[POS2], SEG2); CLEAR_BIT(buffer[POS1], SEG1); }))
-inline void LCD_TOGGLE(bool EN, uint8_t POS1, uint8_t SEG1, uint8_t POS2, uint8_t SEG2)
+void LCD_TOGGLE(bool EN, uint8_t POS1, uint8_t SEG1, uint8_t POS2, uint8_t SEG2)
 {
     if (EN)
     {
@@ -78,6 +78,7 @@ inline void LCD_TOGGLE(bool EN, uint8_t POS1, uint8_t SEG1, uint8_t POS2, uint8_
         CLEAR_BIT(buffer[POS1], SEG1);
     }
 }
+
 /**
  * @brief DISPLAY HARDWARE DEFINES BLOCK
  */
@@ -94,6 +95,8 @@ inline void LCD_TOGGLE(bool EN, uint8_t POS1, uint8_t SEG1, uint8_t POS2, uint8_
 #define SLAVE_OWN_ADDRESS 0x7C
 #define MODE_CMD  0x01
 #define MODE_DATA 0x00
+#define ADR04_CMD 0x80
+#define ADR56_CMD 0xe8
 
 #define ADR0_SHIFT 0
 #define ADR1_SHIFT 7
@@ -117,11 +120,10 @@ inline void LCD_TOGGLE(bool EN, uint8_t POS1, uint8_t SEG1, uint8_t POS2, uint8_
 #define P5_SEG (1 << 0)
 #define P5_POS 6
 
-#define NUM1FGE_SEG (7 << 5) //0b11100000
-#define NUM1FGE_POS 2
-#define NUM1ABC_SEG (0x7 << 0) //0b00000111
-#define NUM1D_SEG (0x08 << 0)  //0b00001000
-#define NUM1ABCD_POS 3
+#define NUM1FGE_SEG (7 << 0) //0b00001110
+#define NUM1FGE_POS 7
+#define NUM1ABCD_SEG (0xf << 4) //0b11110000
+#define NUM1ABCD_POS 6
 
 #define MINUS_SEG (1 << 0)
 #define MINUS_POS 13
@@ -411,7 +413,6 @@ union tDataSeq
 
 CN91C4S96_HAL_st *CN91C4S96_hal = 0;
 
-inline void LCD_TOGGLE(bool EN, uint8_t POS1, uint8_t SEG1, uint8_t POS2, uint8_t SEG2);
 // the most low-level function. Sends array of bytes into display
 void wrBytes(uint8_t *ptr, uint8_t size);
 // write buffer to the display
@@ -458,6 +459,11 @@ void CN91C4S96displayOff()
     wrCmd(LCDOFF);
 }
 
+void CN91C4S96displayData()
+{
+    wrCmd(PIXONOFFDATA);
+}
+
 void *reverseBytes(void *inp, size_t len)
 {
     unsigned int i;
@@ -483,8 +489,12 @@ void wrBuffer()
 {
 //    buffer[0] = MODE_DATA | (0 << ADR0_SHIFT);
 //    buffer[1] |= (0 << ADR1_SHIFT);
-
-    wrBytes(buffer, sizeof(buffer));
+    wrCmd(ADR04_CMD);
+    wrCmd(ADR56_CMD);
+//    bufferSend[0] = ADR04_CMD;
+    bufferSend[0] = ADR56_CMD;
+    bufferSend[1] = MODE_DATA;
+    wrBytes(bufferSend, sizeof(buffer));
 }
 
 void wrCmd(uint8_t cmd)
@@ -547,8 +557,7 @@ void lettersBufferClear()
     for (size_t i = 0; i < DISPLAY_SIZE; i++)
     {
         CLEAR_BIT(buffer[NUM1FGE_POS + i], NUM1FGE_SEG);
-        CLEAR_BIT(buffer[NUM1ABCD_POS + i], NUM1ABC_SEG);
-        CLEAR_BIT(buffer[NUM1ABCD_POS + i], NUM1D_SEG);
+        CLEAR_BIT(buffer[NUM1ABCD_POS + i], NUM1ABCD_SEG);
     }
 }
 
@@ -577,15 +586,13 @@ void bufferToAscii(const char *in, uint8_t *out)
         if ((c < ' ') || (c - ' ' > (int)sizeof(ascii)))
         {
             CLEAR_BIT(out[NUM1FGE_POS + i], NUM1FGE_SEG);
-            CLEAR_BIT(out[NUM1ABCD_POS + i], NUM1ABC_SEG);
-            CLEAR_BIT(out[NUM1ABCD_POS + i], NUM1D_SEG);
+            CLEAR_BIT(out[NUM1ABCD_POS + i], NUM1ABCD_SEG);
         }
         else
         {
             //02345678 conversion to 67805234
             SET_BIT(out[NUM1FGE_POS + i], NUM1FGE_SEG & (ascii[c - ' ']) << 5);  // shift 5 for changing data format from library to our display
-            SET_BIT(out[NUM1ABCD_POS + i], NUM1ABC_SEG & (ascii[c - ' ']) >> 4); // shift 3 for changing data format from library to our display
-            SET_BIT(out[NUM1ABCD_POS + i], NUM1D_SEG & (ascii[c - ' ']));        // 4 bit not shifted in our display
+            SET_BIT(out[NUM1ABCD_POS + i], NUM1ABCD_SEG & (ascii[c - ' ']) >> 4); // shift 3 for changing data format from library to our display
         }
     }
 }
@@ -710,6 +717,7 @@ void CN91C4S96DispMinMax(bool enable, bool mode, bool min)
         CLEAR_BIT(buffer[MIN_EN_POS], MIN_EN_SEG);
         CLEAR_BIT(buffer[MAX_EN_POS], MAX_EN_SEG);
     }
+    wrBuffer();
 }
 
 void CN91C4S96DispBurst(bool enable, bool mode)
@@ -723,6 +731,7 @@ void CN91C4S96DispBurst(bool enable, bool mode)
         CLEAR_BIT(buffer[BURST_RU_POS], BURST_RU_SEG);
         CLEAR_BIT(buffer[BURST_EN_POS], BURST_EN_SEG);
     }
+    wrBuffer();
 }
 
 void CN91C4S96DispLeak(bool enable, bool mode)
@@ -736,6 +745,7 @@ void CN91C4S96DispLeak(bool enable, bool mode)
         CLEAR_BIT(buffer[LEAK_RU_POS], LEAK_RU_SEG);
         CLEAR_BIT(buffer[LEAK_EN_POS], LEAK_EN_SEG);
     }
+    wrBuffer();
 }
 
 void CN91C4S96DispRev(bool enable, bool mode)
@@ -749,16 +759,19 @@ void CN91C4S96DispRev(bool enable, bool mode)
         CLEAR_BIT(buffer[REV_RU_POS], REV_RU_SEG);
         CLEAR_BIT(buffer[REV_EN_POS], REV_EN_SEG);
     }
+    wrBuffer();
 }
 
 void CN91C4S96DispFrost(bool enable)
 {
     LCD_SWITCH(enable, FROST_POS, FROST_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispQ(bool enable)
 {
     LCD_SWITCH(enable, Q_POS, Q_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispVer(bool enable, bool mode)
@@ -772,6 +785,7 @@ void CN91C4S96DispVer(bool enable, bool mode)
         CLEAR_BIT(buffer[VER_RU_POS], VER_RU_SEG);
         CLEAR_BIT(buffer[VER_EN_POS], VER_EN_SEG);
     }
+    wrBuffer();
 }
 
 void CN91C4S96DispSN(bool enable)
@@ -784,66 +798,79 @@ void CN91C4S96DispSN(bool enable)
     {
         CLEAR_BIT(buffer[SN_POS], SN_SEG);
     }
+    wrBuffer();
 }
 
 void CN91C4S96DispWarn(bool enable)
 {
     LCD_SWITCH(enable, WARN_POS, WARN_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispMagn(bool enable)
 {
     LCD_SWITCH(enable, MAGNET_POS, MAGNET_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispLeft(bool enable)
 {
     LCD_SWITCH(enable, LEFT_POS, LEFT_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispRight(bool enable)
 {
     LCD_SWITCH(enable, RIGHT_POS, RIGHT_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispNoWater(bool enable)
 {
     LCD_SWITCH(enable, NOWATER_POS, NOWATER_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispCRC(bool enable)
 {
     LCD_SWITCH(enable, CRC_POS, CRC_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispDelta(bool enable)
 {
     LCD_SWITCH(enable, DELTA_POS, DELTA_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispT(bool enable)
 {
     LCD_SWITCH(enable, T_POS, T_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96Disp1(bool enable)
 {
     LCD_SWITCH(enable, T1_POS, T1_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispT2(bool enable)
 {
     LCD_SWITCH(enable, T2_POS, T2_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispNBFi(bool enable)
 {
     LCD_SWITCH(enable, NBFI_POS, NBFI_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispNBIoT(bool enable)
 {
     LCD_SWITCH(enable, NBIOT_POS, NBIOT_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96SignalLevel(uint8_t percents)
@@ -863,11 +890,13 @@ void CN91C4S96SignalLevel(uint8_t percents)
     {
         SET_BIT(buffer[SIG1_POS], SIG1_SEG);
     }
+    wrBuffer();
 }
 
 void CN91C4S96DispDegreePoint(bool enable)
 {
     LCD_SWITCH(enable, DEGREE_POS, DEGREE_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispEnergyJ(bool enable, bool mode, bool perH)
@@ -892,6 +921,7 @@ void CN91C4S96DispEnergyJ(bool enable, bool mode, bool perH)
         CLEAR_BIT(buffer[GCAL_POS], GCAL_SEG);
         CLEAR_BIT(buffer[GCAL_H_POS], GCAL_H_SEG);
     }
+    wrBuffer();
 }
 
 void CN91C4S96DispEnergyW(bool enable, bool M, bool perH)
@@ -909,6 +939,7 @@ void CN91C4S96DispEnergyW(bool enable, bool M, bool perH)
         CLEAR_BIT(buffer[MW_POS], MW_SEG);
         CLEAR_BIT(buffer[WH_POS], WH_SEG);
     }
+    wrBuffer();
 }
 
 void CN91C4S96DispFlowM3(bool enable, bool mode, bool perH)
@@ -933,6 +964,7 @@ void CN91C4S96DispFlowM3(bool enable, bool mode, bool perH)
         CLEAR_BIT(buffer[M3_H_POS], M3_H_SEG);
         CLEAR_BIT(buffer[M3_H_EN_POS], M3_H_EN_SEG);
     }
+    wrBuffer();
 }
 
 void CN91C4S96DispFlowGAL(bool enable, bool perH)
@@ -947,6 +979,7 @@ void CN91C4S96DispFlowGAL(bool enable, bool perH)
         CLEAR_BIT(buffer[GAL_POS], GAL_SEG);
         CLEAR_BIT(buffer[GAL_PM_POS], GAL_PM_SEG);
     }
+    wrBuffer();
 }
 
 void CN91C4S96DispFlowFT(bool enable, bool perH)
@@ -961,11 +994,13 @@ void CN91C4S96DispFlowFT(bool enable, bool perH)
         CLEAR_BIT(buffer[FT3_POS], FT3_SEG);
         CLEAR_BIT(buffer[FT3_PM_POS], FT3_PM_SEG);
     }
+    wrBuffer();
 }
 
 void CN91C4S96DispMMBTU(bool enable)
 {
     LCD_SWITCH(enable, MMBTU_POS, MMBTU_SEG);
+    wrBuffer();
 }
 
 void CN91C4S96DispGal(bool enable, bool mode)
@@ -980,6 +1015,7 @@ void CN91C4S96DispGal(bool enable, bool mode)
         CLEAR_BIT(buffer[GALLONS_POS], GALLONS_SEG);
         CLEAR_BIT(buffer[US_POS], US_SEG);
     }
+    wrBuffer();
 }
 
 void CN91C4S96DispPOV(bool enable)
@@ -994,4 +1030,5 @@ void CN91C4S96DispPOV(bool enable)
         CLEAR_BIT(buffer[POV_POS], POV_SEG);
         CLEAR_BIT(buffer[VER_RU_POS], VER_RU_SEG);
     }
+    wrBuffer();
 }

@@ -61,6 +61,11 @@ void CN91C4S96displayOn();
 void CN91C4S96displayOff();
 
 /**
+    * @brief Turns on display from DRAM data
+    */
+void CN91C4S96displayData();
+
+/**
      * @brief Show battery level.
      *
      * @param percents - battery charge state. May vary from 0 up to 100
@@ -98,11 +103,6 @@ void CN91C4S96printFloat(float num, uint8_t precision);
      * @brief Prints number with dot. Use it instead float. Float type usage may slow down many systems
      */
 void CN91C4S96printFixed(int32_t multiplied_float, uint32_t multiplier);
-
-/**
-     * @brief Clears the display
-     */
-void CN91C4S96clear();
 
 /*!
     * \brief display min or max value
