@@ -86,8 +86,9 @@ void CN91C4S96printStr(const char *str);
      * Larger and smaller values will be displayed as -99999 and 999999
      *
      * @param num - number to be printed
+     * @param precision - point or number of symbols to show numbers like "0.0000"
      */
-void CN91C4S96printNum(int32_t num);
+void CN91C4S96printNum(int32_t num, int32_t precision);
 
 /**
      * @brief Prints a float with 0 to 3 decimals, based on the `precision` parameter. Default value is 3
@@ -200,12 +201,30 @@ void CN91C4S96DispRight(bool enable);
     * \param enable true for enable symbols, false for disable all symbols
     */
 void CN91C4S96DispNoWater(bool enable);
+
+/*!
+    * \brief display Forward flow
+    *
+    * \param enable true for enable symbols, false for disable all symbols
+    * \param mode true if nT(rus PT) or false if SP symbols
+    */
+void CN91C4S96DispSP(bool enable, bool mode);
+
+/*!
+    * \brief display reverseFlow
+    *
+    * \param enable true for enable symbols, false for disable all symbols
+    * \param mode true if OT or false if RP symbols
+    */
+void CN91C4S96DispRP(bool enable, bool mode);
+
 /*!
     * \brief display CRC symbol
     *
     * \param enable true for enable symbols, false for disable all symbols
     */
 void CN91C4S96DispCRC(bool enable);
+
 /*!
     * \brief display delta symbol
     *
@@ -327,6 +346,11 @@ void CN91C4S96DispGal(bool enable, bool mode);
      * \param mode if true then display POB
      */
 void CN91C4S96DispPOV(bool enable);
+
+/*!
+     * \brief write all buffer to display. Need start after change display data
+     */
+void CN91C4S96DispWrite(void);
 
 #define DISPLAY_SIZE 9                             // 16 * 8  = 128 symbols on display plus 2 byte for address
 #define SYS_SIZE 2                                 // 2 byte for address and commands

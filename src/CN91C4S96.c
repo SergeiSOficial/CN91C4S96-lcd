@@ -333,7 +333,7 @@ void wrCmd(uint8_t cmd);
 // set decimal separator. Used when print float numbers
 void decimalSeparator(uint8_t dpPosition);
 // check if number below minimum number with segment minus, show minus and abs num
-void showMinus(int32_t* num);
+void showMinus(int32_t *num);
 // takes the Buffer and puts it straight into the driver
 void update();
 // remove battery symbol from display Buffer
@@ -356,10 +356,10 @@ void CN91C4S96Init(CN91C4S96_HAL_st *hal_ptr)
     CN91C4S96_hal->InitI2C(); //
 
     wrCmd(ULP | SYSEN);
-//    wrCmd(PIXONOFFDATA);
-//    wrCmd(NOBLINK);
-//    wrCmd(EV0);
-//    wrCmd(NORMALMODE);
+    //    wrCmd(PIXONOFFDATA);
+    //    wrCmd(NOBLINK);
+    //    wrCmd(EV0);
+    //    wrCmd(NORMALMODE);
 }
 
 void CN91C4S96displayOn()
@@ -400,17 +400,17 @@ void wrBytes(uint8_t *ptr, uint8_t size)
 
 void wrBuffer()
 {
-//    Buffer[0] = MODE_DATA | (0 << ADR0_SHIFT);
-//    Buffer[1] |= (0 << ADR1_SHIFT);
-//    wrCmd(ADR04_CMD);
-//    wrCmd(ADR56_CMD);
-//    BufferSend[0] = ADR04_CMD;
+    //    Buffer[0] = MODE_DATA | (0 << ADR0_SHIFT);
+    //    Buffer[1] |= (0 << ADR1_SHIFT);
+    //    wrCmd(ADR04_CMD);
+    //    wrCmd(ADR56_CMD);
+    //    BufferSend[0] = ADR04_CMD;
     BufferSend[0] = ADR56_CMD;
     BufferSend[1] = MODE_DATA;
-//    for (uint8_t i = 2; i<sizeof(Buffer); i++)
-//    {
-//      BufferSend[i]= 0xff;
-//    }
+    //    for (uint8_t i = 2; i<sizeof(Buffer); i++)
+    //    {
+    //      BufferSend[i]= 0xff;
+    //    }
     wrBytes(BufferSend, sizeof(BufferSend));
 }
 
@@ -452,7 +452,6 @@ void CN91C4S96batteryLevel(uint8_t percents)
     {
         SET_BIT(Buffer[BAT23_POS], BAT3_SEG);
     }
-    wrBuffer();
 }
 
 void batteryBufferClear()
@@ -489,8 +488,6 @@ void AllClear()
 void clear()
 {
     AllClear();
-
-    wrBuffer();
 }
 
 void BufferToAscii(const char *in, uint8_t *out)
@@ -507,7 +504,7 @@ void BufferToAscii(const char *in, uint8_t *out)
         }
         else
         {
-            SET_BIT(out[NUM1FGE_POS - i], NUM1FGE_SEG & (ascii[c - ' '] << 4));  // shift 4 for changing data format from library to our display
+            SET_BIT(out[NUM1FGE_POS - i], NUM1FGE_SEG & (ascii[c - ' '] << 4));   // shift 4 for changing data format from library to our display
             SET_BIT(out[NUM1ABCD_POS - i], NUM1ABCD_SEG & (ascii[c - ' '] >> 4)); // shift 4 for changing data format from library to our display
             SET_BIT(out[NUM1ABCD_POS - i], NUM1ABCD_SEG & ascii[c - ' '] & 0x08); // mask for changing D segment from library to our display
         }
@@ -519,10 +516,9 @@ void CN91C4S96printStr(const char *str)
     dotsBufferClear();
     lettersBufferClear();
     BufferToAscii(str, Buffer);
-    wrBuffer();
 }
 
-void CN91C4S96printNum(int32_t num)
+void CN91C4S96printNum(int32_t num, int32_t precision)
 {
     if (num > MAX_NUM)
         num = MAX_NUM;
@@ -535,15 +531,29 @@ void CN91C4S96printNum(int32_t num)
     showMinus(&num);
 
     char str[DISPLAY_SIZE + 1] = {0};
+    char strNum[DISPLAY_SIZE + 1] = {0};
+    int8_t numberSymbols = (int32_t)log10(num) + 1;
+    for (int8_t i = 0; i < DISPLAY_SIZE - numberSymbols; i++)
+    {
+        if (i < DISPLAY_SIZE - precision - 1)
+        {
+            str[i] = ' ';
+        }
+        else
+        {
+            str[i] = '0';
+        }
+    }
 #if __STDC_WANT_LIB_EXT1__ == 1
     snprintf_s(str, sizeof(str), "%9li", num);
 #else
-    snprintf(str, sizeof(str), "%9li", num);
+    snprintf(strNum, sizeof(strNum), "%9li", num);
 #endif
-
+    for (int32_t i = DISPLAY_SIZE - numberSymbols; i < DISPLAY_SIZE; i++)
+    {
+        str[i] = strNum[i];
+    }
     BufferToAscii(str, Buffer);
-
-    wrBuffer();
 }
 
 void CN91C4S96printFloat(float num, uint8_t precision)
@@ -570,10 +580,8 @@ void CN91C4S96printFloat(float num, uint8_t precision)
     if (integerated < MIN_NUM)
         integerated = MIN_NUM;
 
-    CN91C4S96printNum(integerated);
+    CN91C4S96printNum(integerated, precision);
     decimalSeparator(precision);
-
-    wrBuffer();
 }
 
 // TODO: make multiplier more strict.
@@ -599,10 +607,8 @@ void CN91C4S96printFixed(int32_t multiplied_float, uint32_t multiplier)
     if (multiplied_float < MIN_NUM)
         multiplied_float = MIN_NUM;
 
-    CN91C4S96printNum((int32_t)multiplied_float);
+    CN91C4S96printNum((int32_t)multiplied_float, precision);
     decimalSeparator(precision);
-
-    wrBuffer();
 }
 
 void decimalSeparator(uint8_t dpPosition)
@@ -616,13 +622,14 @@ void decimalSeparator(uint8_t dpPosition)
     SET_BIT(Buffer[P1_POS - PRECISION_MAX_POSITIVE + dpPosition], P1_SEG);
 }
 
-void showMinus(int32_t* num)
+void showMinus(int32_t *num)
 {
     if (*num < MIN_MINUS_NUM)
     {
         SET_BIT(Buffer[MINUS_POS], MINUS_SEG);
         *num *= -1;
-    }else
+    }
+    else
     {
         CLEAR_BIT(Buffer[MINUS_POS], MINUS_SEG);
     }
@@ -648,7 +655,6 @@ void CN91C4S96DispMinMax(bool enable, bool mode, bool min)
         CLEAR_BIT(Buffer[MIN_EN_POS], MIN_EN_SEG);
         CLEAR_BIT(Buffer[MAX_EN_POS], MAX_EN_SEG);
     }
-    wrBuffer();
 }
 
 void CN91C4S96DispBurst(bool enable, bool mode)
@@ -662,7 +668,6 @@ void CN91C4S96DispBurst(bool enable, bool mode)
         CLEAR_BIT(Buffer[BURST_RU_POS], BURST_RU_SEG);
         CLEAR_BIT(Buffer[BURST_EN_POS], BURST_EN_SEG);
     }
-    wrBuffer();
 }
 
 void CN91C4S96DispLeak(bool enable, bool mode)
@@ -676,7 +681,6 @@ void CN91C4S96DispLeak(bool enable, bool mode)
         CLEAR_BIT(Buffer[LEAK_RU_POS], LEAK_RU_SEG);
         CLEAR_BIT(Buffer[LEAK_EN_POS], LEAK_EN_SEG);
     }
-    wrBuffer();
 }
 
 void CN91C4S96DispRev(bool enable, bool mode)
@@ -690,19 +694,16 @@ void CN91C4S96DispRev(bool enable, bool mode)
         CLEAR_BIT(Buffer[REV_RU_POS], REV_RU_SEG);
         CLEAR_BIT(Buffer[REV_EN_POS], REV_EN_SEG);
     }
-    wrBuffer();
 }
 
 void CN91C4S96DispFrost(bool enable)
 {
     LCD_SWITCH(enable, FROST_POS, FROST_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96DispQ(bool enable)
 {
     LCD_SWITCH(enable, Q_POS, Q_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96DispVer(bool enable, bool mode)
@@ -716,7 +717,6 @@ void CN91C4S96DispVer(bool enable, bool mode)
         CLEAR_BIT(Buffer[VER_RU_POS], VER_RU_SEG);
         CLEAR_BIT(Buffer[VER_EN_POS], VER_EN_SEG);
     }
-    wrBuffer();
 }
 
 void CN91C4S96DispSN(bool enable)
@@ -729,79 +729,106 @@ void CN91C4S96DispSN(bool enable)
     {
         CLEAR_BIT(Buffer[SN_POS], SN_SEG);
     }
-    wrBuffer();
 }
 
 void CN91C4S96DispWarn(bool enable)
 {
     LCD_SWITCH(enable, WARN_POS, WARN_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96DispMagn(bool enable)
 {
     LCD_SWITCH(enable, MAGNET_POS, MAGNET_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96DispLeft(bool enable)
 {
     LCD_SWITCH(enable, LEFT_POS, LEFT_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96DispRight(bool enable)
 {
     LCD_SWITCH(enable, RIGHT_POS, RIGHT_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96DispNoWater(bool enable)
 {
     LCD_SWITCH(enable, NOWATER_POS, NOWATER_SEG);
-    wrBuffer();
+}
+
+void CN91C4S96DispSP(bool enable, bool mode)
+{
+    if (enable)
+    {
+        if (mode)
+        {
+            SET_BIT(Buffer[SP_RU_POS], SP_RU_SEG);
+        }
+        else
+        {
+            SET_BIT(Buffer[SP_EN_POS], SP_EN_SEG);
+        }
+    }
+    else
+    {
+        CLEAR_BIT(Buffer[SP_RU_POS], SP_RU_SEG);
+        CLEAR_BIT(Buffer[SP_EN_POS], SP_EN_SEG);
+    }
+}
+
+void CN91C4S96DispRP(bool enable, bool mode)
+{
+    if (enable)
+    {
+        if (mode)
+        {
+            SET_BIT(Buffer[RP_RU_POS], RP_RU_SEG);
+        }
+        else
+        {
+            SET_BIT(Buffer[RP_EN_POS], RP_EN_SEG);
+        }
+    }
+    else
+    {
+        CLEAR_BIT(Buffer[RP_RU_POS], RP_RU_SEG);
+        CLEAR_BIT(Buffer[RP_EN_POS], RP_EN_SEG);
+    }
 }
 
 void CN91C4S96DispCRC(bool enable)
 {
     LCD_SWITCH(enable, CRC_POS, CRC_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96DispDelta(bool enable)
 {
     LCD_SWITCH(enable, DELTA_POS, DELTA_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96DispT(bool enable)
 {
     LCD_SWITCH(enable, T_POS, T_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96Disp1(bool enable)
 {
     LCD_SWITCH(enable, T1_POS, T1_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96DispT2(bool enable)
 {
     LCD_SWITCH(enable, T2_POS, T2_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96DispNBFi(bool enable)
 {
     LCD_SWITCH(enable, NBFI_POS, NBFI_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96DispNBIoT(bool enable)
 {
     LCD_SWITCH(enable, NBIOT_POS, NBIOT_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96SignalLevel(uint8_t percents)
@@ -821,13 +848,11 @@ void CN91C4S96SignalLevel(uint8_t percents)
     {
         SET_BIT(Buffer[SIG1_POS], SIG1_SEG);
     }
-    wrBuffer();
 }
 
 void CN91C4S96DispDegreePoint(bool enable)
 {
     LCD_SWITCH(enable, DEGREE_POS, DEGREE_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96DispEnergyJ(bool enable, bool mode, bool perH)
@@ -852,7 +877,6 @@ void CN91C4S96DispEnergyJ(bool enable, bool mode, bool perH)
         CLEAR_BIT(Buffer[GCAL_POS], GCAL_SEG);
         CLEAR_BIT(Buffer[GCAL_H_POS], GCAL_H_SEG);
     }
-    wrBuffer();
 }
 
 void CN91C4S96DispEnergyW(bool enable, bool M, bool perH)
@@ -870,7 +894,6 @@ void CN91C4S96DispEnergyW(bool enable, bool M, bool perH)
         CLEAR_BIT(Buffer[MW_POS], MW_SEG);
         CLEAR_BIT(Buffer[WH_POS], WH_SEG);
     }
-    wrBuffer();
 }
 
 void CN91C4S96DispFlowM3(bool enable, bool mode, bool perH)
@@ -895,7 +918,6 @@ void CN91C4S96DispFlowM3(bool enable, bool mode, bool perH)
         CLEAR_BIT(Buffer[M3_H_POS], M3_H_SEG);
         CLEAR_BIT(Buffer[M3_H_EN_POS], M3_H_EN_SEG);
     }
-    wrBuffer();
 }
 
 void CN91C4S96DispFlowGAL(bool enable, bool perH)
@@ -910,7 +932,6 @@ void CN91C4S96DispFlowGAL(bool enable, bool perH)
         CLEAR_BIT(Buffer[GAL_POS], GAL_SEG);
         CLEAR_BIT(Buffer[GAL_PM_POS], GAL_PM_SEG);
     }
-    wrBuffer();
 }
 
 void CN91C4S96DispFlowFT(bool enable, bool perH)
@@ -925,13 +946,11 @@ void CN91C4S96DispFlowFT(bool enable, bool perH)
         CLEAR_BIT(Buffer[FT3_POS], FT3_SEG);
         CLEAR_BIT(Buffer[FT3_PM_POS], FT3_PM_SEG);
     }
-    wrBuffer();
 }
 
 void CN91C4S96DispMMBTU(bool enable)
 {
     LCD_SWITCH(enable, MMBTU_POS, MMBTU_SEG);
-    wrBuffer();
 }
 
 void CN91C4S96DispGal(bool enable, bool mode)
@@ -946,7 +965,6 @@ void CN91C4S96DispGal(bool enable, bool mode)
         CLEAR_BIT(Buffer[GALLONS_POS], GALLONS_SEG);
         CLEAR_BIT(Buffer[US_POS], US_SEG);
     }
-    wrBuffer();
 }
 
 void CN91C4S96DispPOV(bool enable)
@@ -961,5 +979,9 @@ void CN91C4S96DispPOV(bool enable)
         CLEAR_BIT(Buffer[POV_POS], POV_SEG);
         CLEAR_BIT(Buffer[VER_RU_POS], VER_RU_SEG);
     }
+}
+
+void CN91C4S96DispWrite(void)
+{
     wrBuffer();
 }
