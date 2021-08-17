@@ -39,6 +39,7 @@ typedef struct
 {
     void (*InitI2C)(void);
     int8_t (*WriteI2C)(uint8_t, const uint8_t *, uint16_t);
+    void (*WaitI2C)(void);
 } CN91C4S96_HAL_st;
 
 /**

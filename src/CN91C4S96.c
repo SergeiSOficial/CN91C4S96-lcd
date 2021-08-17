@@ -65,6 +65,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 uint8_t BufferSend[DISPLAY_BUFFER_SIZE] = {0}; // Buffer where display data will be stored
 uint8_t * Buffer = BufferSend + 2; // Buffer where display data will be stored
 
+uint8_t BufferSendOld[DISPLAY_BUFFER_SIZE] = {0}; // Buffer where display data will be stored
+
 #define LCD_SWITCH(EN, POS, SEG) ((EN) ? (SET_BIT(Buffer[POS], SEG)) : (CLEAR_BIT(Buffer[POS], SEG)))
 void LCD_TOGGLE(bool EN, uint8_t POS1, uint8_t SEG1, uint8_t POS2, uint8_t SEG2)
 {
@@ -351,15 +353,17 @@ void CN91C4S96Init(CN91C4S96_HAL_st *hal_ptr)
 {
     assert_param(hal_ptr->InitI2C);
     assert_param(hal_ptr->WriteI2C);
+    assert_param(hal_ptr->WaitI2C);
     CN91C4S96_hal = hal_ptr;
 
     CN91C4S96_hal->InitI2C(); //
 
     wrCmd(ULP | SYSEN);
-    //    wrCmd(PIXONOFFDATA);
-    //    wrCmd(NOBLINK);
-    //    wrCmd(EV0);
-    //    wrCmd(NORMALMODE);
+//        wrCmd(PIXONOFFDATA);
+//        wrCmd(NOBLINK);
+//        wrCmd(EV0);
+//        wrCmd(NORMALMODE);
+
 }
 
 void CN91C4S96displayOn()
@@ -400,18 +404,14 @@ void wrBytes(uint8_t *ptr, uint8_t size)
 
 void wrBuffer()
 {
-    //    Buffer[0] = MODE_DATA | (0 << ADR0_SHIFT);
-    //    Buffer[1] |= (0 << ADR1_SHIFT);
-    //    wrCmd(ADR04_CMD);
-    //    wrCmd(ADR56_CMD);
-    //    BufferSend[0] = ADR04_CMD;
     BufferSend[0] = ADR56_CMD;
     BufferSend[1] = MODE_DATA;
-    //    for (uint8_t i = 2; i<sizeof(Buffer); i++)
-    //    {
-    //      BufferSend[i]= 0xff;
-    //    }
-    wrBytes(BufferSend, sizeof(BufferSend));
+    if(memcmp(BufferSendOld, BufferSend, DISPLAY_BUFFER_SIZE) != 0)
+    {
+        memcpy(BufferSendOld, BufferSend, sizeof(BufferSend));
+        wrBytes(BufferSend, sizeof(BufferSend));
+    }
+
 }
 
 void wrCmd(uint8_t cmd)
@@ -434,6 +434,7 @@ void wrCmd(uint8_t cmd)
     CommandSeq.data = cmd;
 
     wrBytes(CommandSeq.arr, sizeof(CommandSeq));
+    CN91C4S96_hal->WaitI2C();
 }
 
 void CN91C4S96batteryLevel(uint8_t percents)
