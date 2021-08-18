@@ -399,6 +399,7 @@ void *reverseBytes(void *inp, size_t len)
 void wrBytes(uint8_t *ptr, uint8_t size)
 {
     // TODO: check wrong size
+    assert_param(CN91C4S96_hal->WriteI2C);
     CN91C4S96_hal->WriteI2C(SLAVE_OWN_ADDRESS, ptr, size);
 }
 
@@ -416,6 +417,7 @@ void wrBuffer()
 
 void wrCmd(uint8_t cmd)
 {
+    assert_param(CN91C4S96_hal->WaitI2C);
     union
     {
         struct __attribute__((packed))
