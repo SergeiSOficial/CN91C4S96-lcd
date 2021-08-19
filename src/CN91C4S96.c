@@ -351,9 +351,9 @@ void BufferToAscii(const char *in, uint8_t *out);
 
 void CN91C4S96Init(CN91C4S96_HAL_st *hal_ptr)
 {
-    assert_param(hal_ptr->InitI2C);
-    assert_param(hal_ptr->WriteI2C);
-    assert_param(hal_ptr->WaitI2C);
+    assert_param(hal_ptr->InitI2C != NULL);
+    assert_param(hal_ptr->WriteI2C != NULL);
+    assert_param(hal_ptr->WaitI2C != NULL);
     CN91C4S96_hal = hal_ptr;
 
     CN91C4S96_hal->InitI2C(); //
@@ -399,7 +399,7 @@ void *reverseBytes(void *inp, size_t len)
 void wrBytes(uint8_t *ptr, uint8_t size)
 {
     // TODO: check wrong size
-    assert_param(CN91C4S96_hal->WriteI2C);
+    assert_param(CN91C4S96_hal->WriteI2C != NULL);
     CN91C4S96_hal->WriteI2C(SLAVE_OWN_ADDRESS, ptr, size);
 }
 
@@ -417,7 +417,7 @@ void wrBuffer()
 
 void wrCmd(uint8_t cmd)
 {
-    assert_param(CN91C4S96_hal->WaitI2C);
+    assert_param(CN91C4S96_hal->WaitI2C != NULL);
     union
     {
         struct __attribute__((packed))
