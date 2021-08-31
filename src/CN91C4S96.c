@@ -334,6 +334,8 @@ void wrBuffer();
 void wrCmd(uint8_t cmd);
 // set decimal separator. Used when print float numbers
 void decimalSeparator(uint8_t dpPosition);
+// set two dots for date
+void dateSeparator(uint8_t dpPosition, uint8_t dpPosition2);
 // check if number below minimum number with segment minus, show minus and abs num
 void showMinus(int32_t *num);
 // takes the Buffer and puts it straight into the driver
@@ -614,6 +616,23 @@ void CN91C4S96printFixed(int32_t multiplied_float, uint32_t multiplier)
     decimalSeparator(precision);
 }
 
+void CN91C4S96printDate(int32_t day, int32_t mon, int32_t year)
+{
+    char str[DISPLAY_SIZE + 1] = {"   "};
+    char strDate[DISPLAY_SIZE + 1] = {0};
+#if __STDC_WANT_LIB_EXT1__ == 1
+    snprintf_s(strDate, sizeof(strDate), "%02i%02i%02i", day, mon, year);
+    strcat_s(str, sizeof(str), strDate);
+#else
+    snprintf(strDate, sizeof(strDate), "%02i%02i%02i", day, mon, year);
+    strcat(str, strDate);
+#endif
+
+
+    BufferToAscii(str, Buffer);
+    dateSeparator(2, 4);
+}
+
 void decimalSeparator(uint8_t dpPosition)
 {
     dotsBufferClear();
@@ -623,6 +642,21 @@ void decimalSeparator(uint8_t dpPosition)
         return;
 
     SET_BIT(Buffer[P1_POS - PRECISION_MAX_POSITIVE + dpPosition], P1_SEG);
+}
+
+void dateSeparator(uint8_t dpPosition, uint8_t dpPosition2)
+{
+    dotsBufferClear();
+
+    if (dpPosition < PRECISION_MIN || dpPosition > PRECISION_MAX_POSITIVE)
+        // selected dot position not supported by display hardware
+        return;
+    if (dpPosition2 < PRECISION_MIN || dpPosition2 > PRECISION_MAX_POSITIVE)
+      // selected dot position not supported by display hardware
+      return;
+
+    SET_BIT(Buffer[P1_POS - PRECISION_MAX_POSITIVE + dpPosition], P1_SEG);
+    SET_BIT(Buffer[P1_POS - PRECISION_MAX_POSITIVE + dpPosition2], P1_SEG);
 }
 
 void showMinus(int32_t *num)

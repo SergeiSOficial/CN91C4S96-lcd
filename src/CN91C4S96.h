@@ -106,6 +106,11 @@ void CN91C4S96printFloat(float num, uint8_t precision);
      */
 void CN91C4S96printFixed(int32_t multiplied_float, uint32_t multiplier);
 
+/**
+     * @brief Prints number of date with dots in DD-MM-YYYY format.
+     */
+void CN91C4S96printDate(int32_t day, int32_t mon, int32_t year);
+
 /*!
     * \brief display min or max value
     *
