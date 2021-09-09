@@ -291,7 +291,7 @@ static const char ascii[] =
 /*      ' '   'A'   'B'   'C'   'D'   'E'   'F'   'G'   'H'   'I'   'J'   'K'   'L'   'M'   'N'   'O' */
 /*6*/   0x00, 0x77, 0x4f, 0x1d, 0x6e, 0x1f, 0x17, 0x5d, 0x47, 0x05, 0x68, 0x27, 0x0d, 0x54, 0x75, 0x4e,
 /*      'P'   'Q'   'R'   'S'   'T'   'U'   'V'   'W'   'X'   'Y'   'Z'   ' '   ' '   ' '   ' '   ' ' */
-/*7*/   0x37, 0x73, 0x06, 0x59, 0x0f, 0x6d, 0x23, 0x29, 0x67, 0x6b, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00,
+/*7*/   0x37, 0x73, 0x06, 0x59, 0x0f, 0x6d, 0x23, 0x29, 0x67, 0x6b, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00
 };
 
 #define ASCII_SPACE_SYMBOL 0x00
@@ -502,7 +502,7 @@ void BufferToAscii(const char *in, uint8_t *out)
         char c = in[i];
         // Handle situation when char is out of displayable ascii table part.
         // Show space instead
-        if ((c < ' ') || (c - ' ' > (int)sizeof(ascii)))
+        if ((c < ' ') || (c - ' ' >= (int)sizeof(ascii)))
         {
             CLEAR_BIT(out[NUM1FGE_POS - i], NUM1FGE_SEG);
             CLEAR_BIT(out[NUM1ABCD_POS - i], NUM1ABCD_SEG);
