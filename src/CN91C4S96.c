@@ -425,11 +425,11 @@ void wrCmd(uint8_t cmd)
         struct __attribute__((packed))
         {
 #if defined LITTLE_ENDIAN
-            uint16_t data : 7;
-            uint16_t type : 1;
+            uint8_t data : 7;
+            uint8_t type : 1;
 #elif defined BIG_ENDIAN
-            uint16_t type : 1;
-            uint16_t data : 7;
+            uint8_t type : 1;
+            uint8_t data : 7;
 #endif
         };
         uint8_t arr[1];
