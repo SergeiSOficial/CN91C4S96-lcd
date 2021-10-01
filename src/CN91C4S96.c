@@ -497,7 +497,8 @@ void clear()
 
 void BufferToAscii(const char *in, uint8_t *out)
 {
-    for (size_t i = 0; i < MIN(DISPLAY_SIZE, strlen(in)); i++)
+    size_t len = MIN(DISPLAY_SIZE, strlen(in));
+    for (size_t i = 0; i < len; i++)
     {
         char c = in[i];
         // Handle situation when char is out of displayable ascii table part.
@@ -621,10 +622,10 @@ void CN91C4S96printDate(int32_t day, int32_t mon, int32_t year)
     char str[DISPLAY_SIZE + 1] = {"   "};
     char strDate[DISPLAY_SIZE + 1] = {0};
 #if __STDC_WANT_LIB_EXT1__ == 1
-    snprintf_s(strDate, sizeof(strDate), "%02i%02i%02i", day, mon, year);
+    snprintf_s(strDate, sizeof(strDate), "%02hhu%02hhu%02hhu", day, mon, year);
     strcat_s(str, sizeof(str), strDate);
 #else
-    snprintf(strDate, sizeof(strDate), "%02i%02i%02i", day, mon, year);
+    snprintf(strDate, sizeof(strDate), "%02hhu%02hhu%02hhu", day, mon, year);
     strcat(str, strDate);
 #endif
 
