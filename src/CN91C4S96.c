@@ -63,7 +63,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endif //CLEAR_BIT
 
 uint8_t BufferSend[DISPLAY_BUFFER_SIZE] = {0}; // Buffer where display data will be stored
-uint8_t * Buffer = BufferSend + 2; // Buffer where display data will be stored
+uint8_t *Buffer = BufferSend + 2;              // Buffer where display data will be stored
 
 uint8_t BufferSendOld[DISPLAY_BUFFER_SIZE] = {0}; // Buffer where display data will be stored
 
@@ -85,10 +85,10 @@ void LCD_TOGGLE(bool EN, uint8_t POS1, uint8_t SEG1, uint8_t POS2, uint8_t SEG2)
 /**
  * @brief DISPLAY HARDWARE DEFINES BLOCK
  */
-#define ULP 0x50 //0b 0101 0000  ULP Set ‘1’ to enable the Ultra-Low-Power mode, which can decrease total power consumption further more along with ‘SR’ and ‘FR’ Power
+#define ULP 0x50    //0b 0101 0000  ULP Set ‘1’ to enable the Ultra-Low-Power mode, which can decrease total power consumption further more along with ‘SR’ and ‘FR’ Power
 #define SYSEN 0x48  //0b 0100 1000  EN 0: disable all blocks on-chip, all com/seg pin will be pulled to GND. 1: enable
-#define LCDOFF 0x79  //0b 0111 1001  Turn off all LCD segments
-#define LCDON 0x7A   //0b 0111 1010  Turn on all LCD segments
+#define LCDOFF 0x79 //0b 0111 1001  Turn off all LCD segments
+#define LCDON 0x7A  //0b 0111 1010  Turn on all LCD segments
 
 #define PIXONOFFDATA 0x78 //0b 0111 1000  All pixels are ON/OFF depending on the data in
 #define NOBLINK 0x70      //0b 0111 0000  No blink
@@ -96,7 +96,7 @@ void LCD_TOGGLE(bool EN, uint8_t POS1, uint8_t SEG1, uint8_t POS2, uint8_t SEG2)
 #define NORMALMODE 0x20   //0b 0010 0000 80Hz Normal Mode, Line inverse, *0.5, Power Save Mode 1
 
 #define SLAVE_OWN_ADDRESS 0x7C
-#define MODE_CMD  0x01
+#define MODE_CMD 0x01
 #define MODE_DATA 0x00
 #define ADR04_CMD 0x80
 #define ADR56_CMD 0xe8
@@ -278,21 +278,20 @@ void LCD_TOGGLE(bool EN, uint8_t POS1, uint8_t SEG1, uint8_t POS2, uint8_t SEG2)
 #define DOT_SEG 0x80
 
 static const char ascii[] =
-{
-/*       0     1     2     3     4     5     6     7     8     9     a     b     c     d     e     f */
-/*      ' '   ' '   ' '   ' '   ' '   ' '   ' '   ' '   ' '   ' '   ' '   ' '   ' '   '-'   ' '   ' ' */
-/*2*/   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
-/*      '0'   '1'   '2'   '3'   '4'   '5'   '6'   '7'   '8'   '9'   ' '   ' '   ' '   ' '   ' '   ' ' */
-/*3*/   0x7D, 0x60, 0x3e, 0x7a, 0x63, 0x5b, 0x5f, 0x70, 0x7f, 0x7b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-/*      ' '   'A'   'B'   'C'   'D'   'E'   'F'   'G'   'H'   'I'   'J'   'K'   'L'   'M'   'N'   'O' */
-/*4*/   0x00, 0x77, 0x4f, 0x1d, 0x6e, 0x1f, 0x17, 0x5d, 0x47, 0x05, 0x68, 0x27, 0x0d, 0x54, 0x75, 0x4e,
-/*      'P'   'Q'   'R'   'S'   'T'   'U'   'V'   'W'   'X'   'Y'   'Z'   ' '   ' '   ' '   ' '   '_' */
-/*5*/   0x37, 0x73, 0x06, 0x59, 0x0f, 0x6d, 0x23, 0x29, 0x67, 0x6b, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x08,
-/*      ' '   'A'   'B'   'C'   'D'   'E'   'F'   'G'   'H'   'I'   'J'   'K'   'L'   'M'   'N'   'O' */
-/*6*/   0x00, 0x77, 0x4f, 0x1d, 0x6e, 0x1f, 0x17, 0x5d, 0x47, 0x05, 0x68, 0x27, 0x0d, 0x54, 0x75, 0x4e,
-/*      'P'   'Q'   'R'   'S'   'T'   'U'   'V'   'W'   'X'   'Y'   'Z'   ' '   ' '   ' '   ' '   ' ' */
-/*7*/   0x37, 0x73, 0x06, 0x59, 0x0f, 0x6d, 0x23, 0x29, 0x67, 0x6b, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00
-};
+    {
+        /*       0     1     2     3     4     5     6     7     8     9     a     b     c     d     e     f */
+        /*      ' '   ' '   ' '   ' '   ' '   ' '   ' '   ' '   ' '   ' '   ' '   ' '   ' '   '-'   ' '   ' ' */
+        /*2*/ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00,
+        /*      '0'   '1'   '2'   '3'   '4'   '5'   '6'   '7'   '8'   '9'   ' '   ' '   ' '   ' '   ' '   ' ' */
+        /*3*/ 0x7D, 0x60, 0x3e, 0x7a, 0x63, 0x5b, 0x5f, 0x70, 0x7f, 0x7b, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        /*      ' '   'A'   'B'   'C'   'D'   'E'   'F'   'G'   'H'   'I'   'J'   'K'   'L'   'M'   'N'   'O' */
+        /*4*/ 0x00, 0x77, 0x4f, 0x1d, 0x6e, 0x1f, 0x17, 0x5d, 0x47, 0x05, 0x68, 0x27, 0x0d, 0x54, 0x75, 0x4e,
+        /*      'P'   'Q'   'R'   'S'   'T'   'U'   'V'   'W'   'X'   'Y'   'Z'   ' '   ' '   ' '   ' '   '_' */
+        /*5*/ 0x37, 0x73, 0x06, 0x59, 0x0f, 0x6d, 0x23, 0x29, 0x67, 0x6b, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x08,
+        /*      ' '   'A'   'B'   'C'   'D'   'E'   'F'   'G'   'H'   'I'   'J'   'K'   'L'   'M'   'N'   'O' */
+        /*6*/ 0x00, 0x77, 0x4f, 0x1d, 0x6e, 0x1f, 0x17, 0x5d, 0x47, 0x05, 0x68, 0x27, 0x0d, 0x54, 0x75, 0x4e,
+        /*      'P'   'Q'   'R'   'S'   'T'   'U'   'V'   'W'   'X'   'Y'   'Z'   ' '   ' '   ' '   ' '   ' ' */
+        /*7*/ 0x37, 0x73, 0x06, 0x59, 0x0f, 0x6d, 0x23, 0x29, 0x67, 0x6b, 0x3c, 0x00, 0x00, 0x00, 0x00, 0x00};
 
 #define ASCII_SPACE_SYMBOL 0x00
 
@@ -361,11 +360,10 @@ void CN91C4S96Init(CN91C4S96_HAL_st *hal_ptr)
     CN91C4S96_hal->InitI2C(); //
 
     wrCmd(ULP | SYSEN);
-//        wrCmd(PIXONOFFDATA);
-//        wrCmd(NOBLINK);
-//        wrCmd(EV0);
-//        wrCmd(NORMALMODE);
-
+    //        wrCmd(PIXONOFFDATA);
+    //        wrCmd(NOBLINK);
+    //        wrCmd(EV0);
+    //        wrCmd(NORMALMODE);
 }
 
 void CN91C4S96displayOn()
@@ -409,12 +407,11 @@ void wrBuffer()
 {
     BufferSend[0] = ADR56_CMD;
     BufferSend[1] = MODE_DATA;
-    if(memcmp(BufferSendOld, BufferSend, DISPLAY_BUFFER_SIZE) != 0)
+    if (memcmp(BufferSendOld, BufferSend, DISPLAY_BUFFER_SIZE) != 0)
     {
         memcpy(BufferSendOld, BufferSend, sizeof(BufferSend));
         wrBytes(BufferSend, sizeof(BufferSend));
     }
-
 }
 
 void wrCmd(uint8_t cmd)
@@ -629,7 +626,6 @@ void CN91C4S96printDate(int32_t day, int32_t mon, int32_t year)
     strcat(str, strDate);
 #endif
 
-
     BufferToAscii(str, Buffer);
     dateSeparator(2, 4);
 }
@@ -653,8 +649,8 @@ void dateSeparator(uint8_t dpPosition, uint8_t dpPosition2)
         // selected dot position not supported by display hardware
         return;
     if (dpPosition2 < PRECISION_MIN || dpPosition2 > PRECISION_MAX_POSITIVE)
-      // selected dot position not supported by display hardware
-      return;
+        // selected dot position not supported by display hardware
+        return;
 
     SET_BIT(Buffer[P1_POS - PRECISION_MAX_POSITIVE + dpPosition], P1_SEG);
     SET_BIT(Buffer[P1_POS - PRECISION_MAX_POSITIVE + dpPosition2], P1_SEG);
